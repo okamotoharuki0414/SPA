@@ -1,0 +1,95 @@
+{
+  "name": "perfect-spa-framework",
+  "version": "2.0.0",
+  "description": "Perfect SPA Framework with AI collaboration, performance optimization, and enhanced security",
+  "main": "dist/spa-framework-perfect.umd.js",
+  "module": "dist/spa-framework-perfect.es.js",
+  "types": "dist/spa-framework-perfect.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist",
+    "preview": "vite preview",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .ts,.js --fix",
+    "format": "prettier --write 'src/**/*.{ts,js,json,md}'",
+    "analyze": "vite-bundle-analyzer dist",
+    "serve:demo": "python3 ../demo/server.py",
+    "deploy:demo": "npm run build && npm run serve:demo"
+  },
+  "keywords": [
+    "spa",
+    "typescript",
+    "performance",
+    "security",
+    "ai-collaboration",
+    "claude-code",
+    "gemini",
+    "real-time",
+    "sse",
+    "pwa"
+  ],
+  "author": "SPA Development Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "eslint": "^8.50.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.0.3",
+    "terser": "^5.20.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.9",
+    "vite-bundle-analyzer": "^0.7.0",
+    "@jest/types": "^29.6.3",
+    "ts-jest": "^29.1.1"
+  },
+  "dependencies": {
+    "core-js": "^3.33.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "collectCoverageFrom": [
+      "src/**/*.{ts,js}",
+      "!src/**/*.d.ts"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.test.{ts,js}"
+    ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "@typescript-eslint/recommended"
+    ],
+    "rules": {
+      "@typescript-eslint/no-unused-vars": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "prefer-const": "error"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "trailingComma": "es5",
+    "singleQuote": true,
+    "printWidth": 100,
+    "tabWidth": 2
+  }
+}

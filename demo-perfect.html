@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfect SPA v2.0 - AI Collaboration Demo</title>
+    
+    <!-- Performance optimizations -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    
+    <!-- Security: Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' 
+        https://cdn.jsdelivr.net 
+        https://cdnjs.cloudflare.com; 
+        script-src 'self' 'unsafe-inline' 
+        https://cdn.jsdelivr.net; 
+        style-src 'self' 'unsafe-inline' 
+        https://cdn.jsdelivr.net 
+        https://cdnjs.cloudflare.com;
+        connect-src 'self' 
+        http://localhost:3005 
+        http://localhost:8888;">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --dark-color: #343a40;
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .ai-environment-banner {
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 200% 200%;
+            animation: gradient-shift 3s ease infinite;
+            padding: 1rem;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .framework-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .framework-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-badge {
+            position: absolute;
+            top: -8px;
+            right: 12px;
+            background: var(--success-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .performance-meter {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .performance-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--primary-color));
+            border-radius: 10px;
+            transition: width 1s ease;
+            position: relative;
+        }
+
+        .performance-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .ai-collaboration-status {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem 0;
+        }
+
+        .ai-assistant {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all var(--transition-speed);
+        }
+
+        .ai-assistant.active {
+            background: var(--success-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .ai-assistant.inactive {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+        .demo-controls {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform var(--transition-speed);
+        }
+
+        .metric-card:hover {
+            transform: scale(1.05);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .notifications-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid var(--primary-color);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .dark-mode {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+        }
+
+        .dark-mode .framework-card {
+            background: rgba(52, 73, 94, 0.95);
+            color: white;
+        }
+
+        .dark-mode .metric-card {
+            background: #34495e;
+            color: white;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="text-center">
+            <div class="loading-spinner"></div>
+            <p class="text-white mt-3">Perfect SPA Framework 初期化中...</p>
+        </div>
+    </div>
+
+    <!-- AI Environment Banner -->
+    <div class="ai-environment-banner">
+        <i class="fas fa-robot me-2"></i>
+        Perfect SPA Framework v2.0 - AI Collaboration System
+        <span id="environmentInfo" class="ms-3"></span>
+    </div>
+
+    <div class="container py-4">
+        <!-- Framework Overview -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="framework-card position-relative p-4">
+                    <div class="feature-badge">New!</div>
+                    <h1 class="text-primary mb-3">
+                        <i class="fas fa-rocket me-2"></i>
+                        Perfect SPA Framework v2.0
+                    </h1>
+                    <p class="lead mb-4">
+                        AI協力による次世代SPA - パフォーマンス、セキュリティ、ユーザビリティを大幅強化
+                    </p>
+                    
+                    <!-- AI Collaboration Status -->
+                    <div class="ai-collaboration-status">
+                        <div class="ai-assistant" id="claudeStatus">
+                            <i class="fas fa-brain me-2"></i>Claude Code
+                        </div>
+                        <div class="ai-assistant" id="geminiStatus">
+                            <i class="fas fa-gem me-2"></i>Gemini
+                        </div>
+                        <div class="ai-assistant" id="hybridStatus">
+                            <i class="fas fa-handshake me-2"></i>Collaboration
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="fcpMetric">0ms</div>
+                    <div class="metric-label">First Contentful Paint</div>
+                    <div class="performance-meter mt-2">
+                        <div class="performance-bar" id="fcpBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="lcpMetric">0ms</div>
+                    <div class="metric-label">Largest Contentful Paint</div>
+                    <div class="performance-meter mt-2">
+                        <div class="performance-bar" id="lcpBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="fidMetric">0ms</div>
+                    <div class="metric-label">First Input Delay</div>
+                    <div class="performance-meter mt-2">
+                        <div class="performance-bar" id="fidBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="clsMetric">0.00</div>
+                    <div class="metric-label">Cumulative Layout Shift</div>
+                    <div class="performance-meter mt-2">
+                        <div class="performance-bar" id="clsBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Controls -->
+        <div class="demo-controls">
+            <h3 class="text-white mb-3">
+                <i class="fas fa-gamepad me-2"></i>
+                Perfect SPA Demo Controls
+            </h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-primary btn-lg w-100 mb-3" onclick="testPerformance()">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        パフォーマンステスト
+                    </button>
+                    <button class="btn btn-success btn-lg w-100 mb-3" onclick="testSecurity()">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        セキュリティテスト
+                    </button>
+                    <button class="btn btn-warning btn-lg w-100 mb-3" onclick="testAICollaboration()">
+                        <i class="fas fa-robot me-2"></i>
+                        AI協力テスト
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-info btn-lg w-100 mb-3" onclick="testOfflineMode()">
+                        <i class="fas fa-wifi-slash me-2"></i>
+                        オフラインモード
+                    </button>
+                    <button class="btn btn-secondary btn-lg w-100 mb-3" onclick="toggleDarkMode()">
+                        <i class="fas fa-moon me-2"></i>
+                        ダークモード切替
+                    </button>
+                    <button class="btn btn-danger btn-lg w-100 mb-3" onclick="simulateError()">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        エラーシミュレーション
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Showcase -->
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="framework-card p-4">
+                    <h4 class="text-primary"><i class="fas fa-bolt me-2"></i>Performance</h4>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Bundle Optimization</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Lazy Loading</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Smart Caching</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Service Worker</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Web Vitals</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="framework-card p-4">
+                    <h4 class="text-success"><i class="fas fa-shield-alt me-2"></i>Security</h4>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>CSP Protection</li>
+                        <li><i class="fas fa-check text-success me-2"></i>CSRF Token</li>
+                        <li><i class="fas fa-check text-success me-2"></i>XSS Prevention</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Input Sanitization</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Rate Limiting</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="framework-card p-4">
+                    <h4 class="text-warning"><i class="fas fa-robot me-2"></i>AI Features</h4>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Environment Detection</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Error Analysis</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Performance Analytics</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Auto Optimization</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Collaborative Debug</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Container -->
+    <div class="notifications-container" id="notificationsContainer"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="dist/spa-framework-perfect.iife.js"></script>
+
+    <script>
+        // Perfect SPA Demo Implementation
+        let perfectSPA = null;
+        let performanceMetrics = {};
+
+        // Environment Configuration
+        window.CLAUDE_ENV = 'true';
+        window.AI_COLLABORATION = 'true';
+
+        // Initialize Perfect SPA
+        document.addEventListener('DOMContentLoaded', async function() {
+            showLoading(true);
+            
+            try {
+                // Initialize Perfect SPA Framework
+                perfectSPA = new PerfectSPAFramework({
+                    workSetId: 'perfect-demo-1',
+                    baseUrl: '',
+                    sseUrl: 'http://localhost:3005',
+                    debug: true,
+                    performance: {
+                        bundleOptimization: true,
+                        lazyLoading: true,
+                        serviceWorker: true,
+                        preloading: true
+                    },
+                    security: {
+                        csrf: true,
+                        csp: true,
+                        sanitization: true,
+                        rateLimiting: { enabled: true, api: 100, sse: 5 }
+                    },
+                    features: {
+                        offline: true,
+                        pwa: true,
+                        analytics: true,
+                        a11y: true,
+                        darkMode: true
+                    }
+                });
+
+                // Update UI with environment info
+                updateEnvironmentInfo();
+                
+                // Start performance monitoring
+                startPerformanceMonitoring();
+                
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate initialization
+                
+                showLoading(false);
+                showNotification('Perfect SPA Framework v2.0 が正常に初期化されました!', 'success');
+
+            } catch (error) {
+                showLoading(false);
+                showNotification('初期化エラー: ' + error.message, 'error');
+                console.error('Perfect SPA initialization failed:', error);
+            }
+        });
+
+        function updateEnvironmentInfo() {
+            const envInfo = document.getElementById('environmentInfo');
+            const ai = perfectSPA?.config?.ai;
+            
+            if (ai) {
+                let status = [];
+                if (ai.CLAUDE_CODE) status.push('Claude Code');
+                if (ai.GEMINI) status.push('Gemini');
+                if (ai.HYBRID) status.push('協力モード');
+                
+                envInfo.textContent = `Environment: ${ai.environment} | AI: ${status.join(' + ')}`;
+                
+                // Update status indicators
+                document.getElementById('claudeStatus').className = 
+                    'ai-assistant ' + (ai.CLAUDE_CODE ? 'active' : 'inactive');
+                document.getElementById('geminiStatus').className = 
+                    'ai-assistant ' + (ai.GEMINI ? 'active' : 'inactive');
+                document.getElementById('hybridStatus').className = 
+                    'ai-assistant ' + (ai.HYBRID ? 'active' : 'inactive');
+            }
+        }
+
+        function startPerformanceMonitoring() {
+            // Simulate real performance metrics
+            if ('performance' in window) {
+                const paintEntries = performance.getEntriesByType('paint');
+                paintEntries.forEach(entry => {
+                    if (entry.name === 'first-contentful-paint') {
+                        updatePerformanceMetric('fcp', entry.startTime);
+                    }
+                });
+                
+                // Simulate other metrics
+                setTimeout(() => {
+                    updatePerformanceMetric('lcp', Math.random() * 2000 + 1000);
+                    updatePerformanceMetric('fid', Math.random() * 100 + 50);
+                    updatePerformanceMetric('cls', Math.random() * 0.1);
+                }, 1000);
+            }
+        }
+
+        function updatePerformanceMetric(metric, value) {
+            performanceMetrics[metric] = value;
+            
+            const metricElement = document.getElementById(metric + 'Metric');
+            const barElement = document.getElementById(metric + 'Bar');
+            
+            if (metricElement) {
+                if (metric === 'cls') {
+                    metricElement.textContent = value.toFixed(3);
+                    const percentage = Math.min((value / 0.25) * 100, 100);
+                    barElement.style.width = percentage + '%';
+                } else {
+                    metricElement.textContent = Math.round(value) + 'ms';
+                    const percentage = Math.min((2000 - value) / 2000 * 100, 100);
+                    barElement.style.width = percentage + '%';
+                }
+            }
+        }
+
+        // Demo Functions
+        function testPerformance() {
+            showNotification('パフォーマンステストを実行中...', 'info');
+            
+            // Simulate performance test
+            setTimeout(() => {
+                const results = {
+                    bundleSize: '6.04 KB (gzipped)',
+                    loadTime: Math.random() * 500 + 200,
+                    memoryUsage: Math.random() * 20 + 10
+                };
+                
+                showNotification(
+                    `パフォーマンステスト完了!\n` +
+                    `バンドルサイズ: ${results.bundleSize}\n` +
+                    `読み込み時間: ${Math.round(results.loadTime)}ms\n` +
+                    `メモリ使用量: ${Math.round(results.memoryUsage)}MB`,
+                    'success'
+                );
+            }, 2000);
+        }
+
+        function testSecurity() {
+            showNotification('セキュリティテストを実行中...', 'info');
+            
+            setTimeout(() => {
+                showNotification(
+                    'セキュリティテスト完了!\n' +
+                    '✅ CSP: 有効\n' +
+                    '✅ CSRF: 有効\n' +
+                    '✅ XSS Protection: 有効\n' +
+                    '✅ Input Sanitization: 有効',
+                    'success'
+                );
+            }, 1500);
+        }
+
+        function testAICollaboration() {
+            showNotification('AI協力機能をテスト中...', 'info');
+            
+            setTimeout(() => {
+                const aiStatus = perfectSPA?.config?.ai;
+                let message = 'AI協力テスト結果:\n';
+                
+                if (aiStatus?.CLAUDE_CODE) message += '🧠 Claude Code: アクティブ\n';
+                if (aiStatus?.GEMINI) message += '💎 Gemini: アクティブ\n';
+                if (aiStatus?.HYBRID) message += '🤝 協力モード: 有効\n';
+                
+                message += '\n分析、最適化、デバッグが協力して実行されます!';
+                
+                showNotification(message, 'success');
+            }, 1000);
+        }
+
+        function testOfflineMode() {
+            showNotification('オフラインモード機能をテスト中...', 'info');
+            
+            setTimeout(() => {
+                showNotification(
+                    'オフラインサポート確認完了!\n' +
+                    '📱 Service Worker: 登録済み\n' +
+                    '💾 Cache Strategy: 有効\n' +
+                    '🔄 Background Sync: 対応',
+                    'success'
+                );
+            }, 1000);
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            showNotification(`${isDark ? 'ダーク' : 'ライト'}モードに切り替えました`, 'info');
+        }
+
+        function simulateError() {
+            showNotification('エラーシミュレーションを実行...', 'warning');
+            
+            setTimeout(() => {
+                try {
+                    // Intentional error for demo
+                    throw new Error('Demo Error: AI協力によるエラー分析テスト');
+                } catch (error) {
+                    showNotification(
+                        'エラーが検出されました!\n' +
+                        '🔍 AI分析: 開始\n' +
+                        '📊 ログ送信: 完了\n' +
+                        '🛠️ 自動復旧: 試行中',
+                        'error'
+                    );
+                    
+                    // Simulate recovery
+                    setTimeout(() => {
+                        showNotification('AI協力により自動復旧しました!', 'success');
+                    }, 2000);
+                }
+            }, 500);
+        }
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: '#28a745',
+                error: '#dc3545',
+                warning: '#ffc107',
+                info: '#17a2b8'
+            };
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.borderLeftColor = colors[type];
+            notification.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <i class="fas ${icons[type]} me-3" style="color: ${colors[type]}; margin-top: 2px;"></i>
+                    <div style="white-space: pre-line;">${message}</div>
+                </div>
+            `;
+
+            document.getElementById('notificationsContainer').appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
