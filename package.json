@@ -12,6 +12,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:static": "echo 'Static build - using existing HTML files'",
     "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist",
     "preview": "vite preview",
     "test": "jest",
