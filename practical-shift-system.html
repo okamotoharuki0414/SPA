@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>実用シフト管理システム</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header h1 i {
+            color: #667eea;
+            font-size: 1.8em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 25px;
+        }
+
+        /* モバイル対応 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 1.2em;
+                justify-content: center;
+            }
+
+            .controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .shift-table-container {
+                padding: 15px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .table-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .current-month {
+                font-size: 1em;
+                min-width: auto;
+            }
+
+            .shift-table {
+                font-size: 12px;
+                min-width: 500px;
+            }
+
+            .shift-table th,
+            .shift-table td {
+                padding: 6px 4px;
+                min-height: 40px;
+                min-width: 30px;
+            }
+
+            .employee-name {
+                min-width: 80px;
+                font-size: 11px;
+                padding: 8px 6px;
+            }
+
+            .shift-badge {
+                font-size: 9px;
+                padding: 2px 4px;
+            }
+
+            .sidebar {
+                order: -1;
+            }
+
+            .panel-content {
+                padding: 15px;
+            }
+
+            .shift-patterns {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .pattern-item {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 13px;
+                min-height: 44px; /* タッチしやすいサイズ */
+            }
+
+            .btn-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .modal-content {
+                margin: 10px;
+                padding: 20px;
+                border-radius: 10px;
+            }
+
+            .employee-item {
+                padding: 15px 12px; /* タッチしやすいサイズ */
+            }
+
+            .input-group input,
+            .input-group select {
+                padding: 12px;
+                font-size: 16px; /* iOS の拡大防止 */
+                border-radius: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.1em;
+            }
+
+            .shift-table {
+                font-size: 10px;
+            }
+
+            .shift-badge {
+                font-size: 8px;
+                padding: 1px 3px;
+            }
+
+            .pattern-item {
+                padding: 8px 6px;
+                font-size: 10px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .controls {
+                gap: 8px;
+            }
+        }
+
+        /* タッチデバイス専用スタイル */
+        @media (pointer: coarse) {
+            .day-cell:hover {
+                background: initial;
+            }
+
+            .day-cell:active {
+                background: #bee3f8;
+                transform: scale(0.98);
+            }
+
+            .btn:hover {
+                transform: none;
+            }
+
+            .btn:active {
+                transform: scale(0.95);
+            }
+
+            .pattern-item:hover {
+                background: #f7fafc;
+                border-color: #cbd5e0;
+            }
+
+            .pattern-item:active {
+                background: #edf2f7;
+                border-color: #a0aec0;
+                transform: scale(0.95);
+            }
+
+            .shift-badge {
+                cursor: default;
+            }
+        }
+
+        .shift-table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 25px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .date-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .date-nav button {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .date-nav button:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+
+        .current-month {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #4a5568;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .shift-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .shift-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid #e2e8f0;
+        }
+
+        .shift-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            min-height: 50px;
+            position: relative;
+        }
+
+        .employee-name {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+            padding: 12px;
+            text-align: left;
+            min-width: 120px;
+        }
+
+        .day-cell {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 50px;
+            min-height: 50px;
+        }
+
+        .day-cell:hover {
+            background: #edf2f7;
+        }
+
+        .shift-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: move;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .shift-early {
+            background: #e6fffa;
+            color: #00695c;
+            border: 1px solid #4db6ac;
+        }
+
+        .shift-late {
+            background: #ffeaa7;
+            color: #e17055;
+            border: 1px solid #fdcb6e;
+        }
+
+        .shift-night {
+            background: #a29bfe;
+            color: white;
+            border: 1px solid #6c5ce7;
+        }
+
+        .shift-off {
+            background: #ddd6fe;
+            color: #7c3aed;
+            border: 1px solid #a78bfa;
+        }
+
+        .drag-over {
+            background: #bee3f8 !important;
+            transform: scale(1.02);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-content {
+            padding: 20px;
+        }
+
+        .employee-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .employee-item {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .employee-item:hover {
+            background: #f7fafc;
+        }
+
+        .employee-item:last-child {
+            border-bottom: none;
+        }
+
+        .employee-info {
+            flex: 1;
+        }
+
+        .employee-name-text {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .employee-role {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 2px;
+        }
+
+        .employee-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #e6fffa;
+            color: #00695c;
+        }
+
+        .btn-delete {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .shift-patterns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .pattern-item {
+            padding: 12px;
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .pattern-item:hover {
+            background: #edf2f7;
+            border-color: #a0aec0;
+        }
+
+        .pattern-item:active {
+            cursor: grabbing;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .modal-header h3 {
+            color: #4a5568;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #a0aec0;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #4a5568;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: end;
+            margin-top: 20px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1001;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.error {
+            background: #f56565;
+        }
+
+        .toast.show {
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-calendar-alt"></i>
+                実用シフト管理システム
+            </h1>
+            <div class="controls">
+                <button class="btn btn-secondary" onclick="exportData()">
+                    <i class="fas fa-download"></i>
+                    データ出力
+                </button>
+                <button class="btn btn-secondary" onclick="importData()">
+                    <i class="fas fa-upload"></i>
+                    データ取込
+                </button>
+                <button class="btn btn-primary" onclick="saveData()">
+                    <i class="fas fa-save"></i>
+                    保存
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="shift-table-container">
+                <div class="table-header">
+                    <div class="date-nav">
+                        <button onclick="previousMonth()">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span class="current-month" id="currentMonth"></span>
+                        <button onclick="nextMonth()">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="controls">
+                        <button class="btn btn-secondary" onclick="toggleView()">
+                            <i class="fas fa-calendar-week"></i>
+                            週表示
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container" id="tableContainer">
+                    <!-- シフト表がここに生成されます -->
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <!-- 社員管理パネル -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <i class="fas fa-users"></i>
+                        社員管理
+                    </div>
+                    <div class="panel-content">
+                        <button class="btn btn-primary" style="width: 100%; margin-bottom: 15px;" onclick="addEmployee()">
+                            <i class="fas fa-plus"></i>
+                            社員追加
+                        </button>
+                        <div class="employee-list" id="employeeList">
+                            <!-- 社員リストがここに表示されます -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- シフトパターン -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <i class="fas fa-clock"></i>
+                        シフトパターン
+                    </div>
+                    <div class="panel-content">
+                        <div class="shift-patterns" id="shiftPatterns">
+                            <!-- シフトパターンがここに表示されます -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 統計情報 -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <i class="fas fa-chart-bar"></i>
+                        統計情報
+                    </div>
+                    <div class="panel-content">
+                        <div class="stats-grid" id="statsGrid">
+                            <!-- 統計情報がここに表示されます -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 社員追加/編集モーダル -->
+    <div class="modal" id="employeeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="employeeModalTitle">社員追加</h3>
+                <button class="close-btn" onclick="closeModal('employeeModal')">&times;</button>
+            </div>
+            <form id="employeeForm">
+                <div class="input-group">
+                    <label>氏名</label>
+                    <input type="text" id="employeeName" required>
+                </div>
+                <div class="input-group">
+                    <label>役職</label>
+                    <select id="employeeRole">
+                        <option value="正社員">正社員</option>
+                        <option value="パート">パート</option>
+                        <option value="アルバイト">アルバイト</option>
+                        <option value="管理者">管理者</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>メールアドレス</label>
+                    <input type="email" id="employeeEmail">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('employeeModal')">
+                        キャンセル
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        保存
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- トースト通知 -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- ファイル入力（非表示） -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
+
+    <script src="js/practical-shift-manager.js"></script>
+</body>
+</html>
