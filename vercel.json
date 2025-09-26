@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "app/api/*/route.js": {
-      "maxDuration": 10
-    }
-  },
   "rewrites": [
     {
       "source": "/",
