@@ -1,0 +1,644 @@
+/**
+ * ScrollTable CSS - エンタープライズシフト管理システム専用
+ * 元のPHP業務システムのScrollTableUIを完全再現
+ */
+
+/* ===========================================
+   ベーススタイル
+   =========================================== */
+.scrollee {
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    width: 100%;
+    font-family: 'Meiryo', 'ヒラギノ角ゴ Pro W3', sans-serif;
+    font-size: 11px;
+}
+
+.scrollee thead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.scrollee th,
+.scrollee td {
+    border: 1px solid #a8c4dc;
+    padding: 2px 4px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* ===========================================
+   スクローラー設定
+   =========================================== */
+.scroller {
+    overflow: auto;
+    border: 1px solid #a8c4dc;
+    background-color: #ffffff;
+    position: relative;
+}
+
+.fixer {
+    position: relative;
+    min-width: 100%;
+}
+
+/* ===========================================
+   固定列スタイル
+   =========================================== */
+.left-fix {
+    position: sticky;
+    left: 0;
+    z-index: 15;
+    background-color: #f8f9fa;
+    border-right: 2px solid #a8c4dc;
+}
+
+.right-fix {
+    position: sticky;
+    right: 0;
+    z-index: 15;
+    background-color: #f8f9fa;
+    border-left: 2px solid #a8c4dc;
+}
+
+/* ===========================================
+   ヘッダースタイル
+   =========================================== */
+.tbl_d_th {
+    background: linear-gradient(to bottom, #f0f4f8 0%, #e2e8f0 100%);
+    color: #2d3748;
+    font-weight: bold;
+    text-align: center;
+    padding: 4px 6px;
+    border: 1px solid #a8c4dc;
+}
+
+.center-combine {
+    background: linear-gradient(to bottom, #4299e1 0%, #3182ce 100%);
+    color: #ffffff;
+    font-weight: bold;
+    text-align: center;
+    font-size: 12px;
+}
+
+.center-separate,
+.center-first {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    text-align: center;
+    padding: 2px;
+}
+
+.col-title {
+    width: 130px;
+    min-width: 130px;
+    max-width: 130px;
+    text-align: left;
+    padding: 4px 7px;
+    font-weight: bold;
+}
+
+/* ===========================================
+   データ行スタイル
+   =========================================== */
+.data-row {
+    height: 40px;
+}
+
+.scrollee tr.line0,
+.scrollee td.line0 {
+    background-color: #ffffff;
+}
+
+.scrollee tr.line1,
+.scrollee td.line1 {
+    background-color: #f9f9f9;
+}
+
+.data-row:hover {
+    background-color: #e6f3ff !important;
+}
+
+/* ===========================================
+   セル内コンテンツ
+   =========================================== */
+.line-name {
+    height: 20px;
+    line-height: 20px;
+    font-weight: bold;
+    text-align: left;
+    padding-left: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.line-shift {
+    height: 15px;
+    line-height: 15px;
+    font-size: 10px;
+    margin: 1px;
+    text-align: center;
+}
+
+.line-name-time {
+    font-size: 11px;
+    color: #666666;
+    line-height: 14px;
+}
+
+.line-namekibo {
+    height: 18px;
+    padding-top: 4px;
+    font-size: 9px;
+}
+
+/* ===========================================
+   曜日別背景色
+   =========================================== */
+.yobi-s,
+.yobi-0 {
+    background-color: rgba(255, 0, 0, 0.05) !important;
+}
+
+.yobi-6 {
+    background-color: rgba(0, 99, 255, 0.05) !important;
+}
+
+span.yobi-s,
+span.yobi-0 {
+    color: #fa5555;
+}
+
+span.yobi-6 {
+    color: #5555fa;
+}
+
+div.yobi-s,
+div.yobi-0 {
+    background-color: rgba(255, 0, 0, 0.05);
+}
+
+div.yobi-6 {
+    background-color: rgba(0, 99, 255, 0.05);
+}
+
+/* ===========================================
+   特殊セル
+   =========================================== */
+.dummy-col {
+    background-color: #cccccc !important;
+    color: #666666;
+}
+
+.event-day {
+    background-color: #eeffee !important;
+}
+
+.eventday {
+    background-color: #eeffee;
+    position: relative;
+}
+
+/* ===========================================
+   シフトパターン表示
+   =========================================== */
+.shift-pattern {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 1px;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.shift-pattern:hover {
+    transform: scale(1.05);
+    z-index: 5;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.shift-early {
+    background: #e6fffa;
+    color: #00695c;
+    border: 1px solid #4db6ac;
+}
+
+.shift-late {
+    background: #ffeaa7;
+    color: #e17055;
+    border: 1px solid #fdcb6e;
+}
+
+.shift-night {
+    background: #a29bfe;
+    color: #ffffff;
+    border: 1px solid #6c5ce7;
+}
+
+.shift-off {
+    background: #ddd6fe;
+    color: #7c3aed;
+    border: 1px solid #a78bfa;
+}
+
+/* ===========================================
+   集計行
+   =========================================== */
+.summ_tr {
+    background-color: #f1f5f9;
+    font-weight: bold;
+    border-top: 2px solid #a8c4dc;
+}
+
+.summ_tr td {
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.top_summary_w {
+    width: 70px;
+    padding-left: 0px !important;
+    padding-right: 3px !important;
+    text-align: right;
+}
+
+.col-data {
+    text-align: center;
+}
+
+.right {
+    text-align: right;
+}
+
+/* ===========================================
+   行高さ設定
+   =========================================== */
+.row-h2 {
+    height: 24px;
+}
+
+.row-h3 {
+    height: 30px;
+}
+
+/* ===========================================
+   セル内チェックボックス
+   =========================================== */
+.ck-day {
+    position: absolute;
+    left: 1px;
+    top: 1px;
+    z-index: 5;
+}
+
+.ck-syain {
+    position: absolute;
+    right: 3px;
+    top: 5px;
+}
+
+/* ===========================================
+   日付セル
+   =========================================== */
+.hidukeCell {
+    cursor: pointer;
+    left: 6px;
+    position: relative;
+    user-select: none;
+}
+
+.hidukeCell:hover {
+    text-decoration: underline;
+    color: #0000ff;
+}
+
+/* ===========================================
+   差異表示
+   =========================================== */
+.plus {
+    background-color: #57CFFA;
+    color: #ffffff;
+}
+
+.minus {
+    background-color: #FF93FE;
+    color: #ffffff;
+}
+
+.jisseki-difference {
+    background-color: orange;
+}
+
+.diff-kibo {
+    border: solid 2px #f08080;
+    background-color: #f08080;
+}
+
+.diff-kibo-id {
+    background-color: #F9D9D9;
+    border: solid 2px #f08080;
+}
+
+.diff-skibo {
+    background-color: #f08080;
+}
+
+.diff-skibo-osii {
+    background-color: #F9D9D9;
+}
+
+.diff-jisseki {
+    background-color: #F9D9D9;
+}
+
+/* ===========================================
+   マーク表示
+   =========================================== */
+.lock_mark {
+    top: 3px;
+    position: relative;
+}
+
+.hankyu_mark {
+    top: 3px;
+    position: relative;
+    margin-left: 3px;
+}
+
+.main_mark {
+    position: relative;
+    top: 2px;
+    font-weight: bold;
+}
+
+.kei_mark {
+    position: absolute;
+    right: 0px;
+    top: 2px;
+    font-weight: bold;
+    color: #fcfcff;
+}
+
+/* ===========================================
+   希望休表示
+   =========================================== */
+.kibo-kyu {
+    background-color: #FFE7EB;
+    border-radius: 10px;
+    width: 80%;
+    margin-left: 10%;
+    color: #444444;
+    height: 14px;
+    padding-top: 1px;
+    font-size: 9px;
+}
+
+/* ===========================================
+   絶対出勤
+   =========================================== */
+.zettai-syukkin {
+    border: solid 2px #aa88ff;
+    background-color: #f0f0ff;
+}
+
+/* ===========================================
+   時刻入力
+   =========================================== */
+.jikoku-input {
+    width: 40px;
+    height: 18px;
+    font-size: 11px;
+    text-align: center;
+    border: 1px solid #cccccc;
+    padding: 0;
+    margin: 0;
+}
+
+.jikoku-text {
+    font-size: 11px;
+    color: #666666;
+}
+
+/* ===========================================
+   印刷用
+   =========================================== */
+.print_person {
+    font-size: 16px;
+    text-decoration: underline;
+    cursor: pointer;
+    color: #256c89;
+}
+
+/* ===========================================
+   ガントチャート
+   =========================================== */
+.gannt {
+    background-color: skyblue;
+    border-radius: 5px;
+    border: solid 1px black;
+    height: 12px;
+    margin: 1px;
+}
+
+/* ===========================================
+   集計コントロール
+   =========================================== */
+.summ_ctrl {
+    padding: 4px;
+    cursor: pointer;
+    margin: 2px;
+    border-radius: 3px;
+    font-size: 10px;
+}
+
+.summ_ctrl_sh {
+    background-color: #fbeade;
+}
+
+.summ_ctrl_hd {
+    background-color: #deeffb;
+}
+
+.summ_ctrl:hover {
+    background-color: #e0e0e0;
+}
+
+/* ===========================================
+   シフトイベント
+   =========================================== */
+.shift_event {
+    font-weight: initial;
+    padding: 2px;
+    font-size: 9px;
+    overflow: hidden;
+}
+
+.shift_event_h {
+    padding-top: 0px;
+}
+
+.shift_event_tate {
+    -ms-writing-mode: tb-rl;
+    writing-mode: vertical-rl;
+}
+
+/* ===========================================
+   ソート機能
+   =========================================== */
+.sortedKinmupattern {
+    background: rgb(255, 255, 255);
+    cursor: move;
+}
+
+.sortedKinmupattern:hover {
+    background-color: #f0f0f0;
+}
+
+.sortedKpn-state-highlight {
+    background-color: #7cfff5 !important;
+}
+
+.unsortable {
+    background-color: #e9ecef !important;
+}
+
+/* ===========================================
+   レスポンシブ対応
+   =========================================== */
+@media (max-width: 1024px) {
+    .scrollee {
+        font-size: 10px;
+    }
+
+    .center-separate,
+    .center-first {
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
+    }
+
+    .col-title {
+        width: 100px;
+        min-width: 100px;
+        max-width: 100px;
+    }
+
+    .shift-pattern {
+        padding: 1px 3px;
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 768px) {
+    .scrollee {
+        font-size: 9px;
+    }
+
+    .center-separate,
+    .center-first {
+        width: 40px;
+        min-width: 40px;
+        max-width: 40px;
+    }
+
+    .col-title {
+        width: 80px;
+        min-width: 80px;
+        max-width: 80px;
+        font-size: 10px;
+    }
+
+    .data-row {
+        height: 35px;
+    }
+
+    .shift-pattern {
+        padding: 1px 2px;
+        font-size: 8px;
+    }
+}
+
+/* ===========================================
+   印刷用スタイル
+   =========================================== */
+@media print {
+    .scroller {
+        overflow: visible;
+        border: none;
+        height: auto !important;
+    }
+
+    .scrollee {
+        page-break-inside: auto;
+    }
+
+    .scrollee thead {
+        position: static;
+    }
+
+    .left-fix,
+    .right-fix {
+        position: static;
+    }
+
+    .ck-day,
+    .ck-syain {
+        display: none;
+    }
+
+    .shift-pattern:hover {
+        transform: none;
+    }
+}
+
+/* ===========================================
+   アクセシビリティ
+   =========================================== */
+@media (prefers-reduced-motion: reduce) {
+    .shift-pattern {
+        transition: none;
+    }
+
+    .shift-pattern:hover {
+        transform: none;
+    }
+
+    .summ_ctrl {
+        transition: none;
+    }
+}
+
+/* フォーカス表示 */
+.scrollee th:focus,
+.scrollee td:focus {
+    outline: 2px solid #4299e1;
+    outline-offset: -2px;
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+    .scrollee th,
+    .scrollee td {
+        border-color: #000000;
+    }
+
+    .tbl_d_th {
+        background: #ffffff;
+        color: #000000;
+        border: 2px solid #000000;
+    }
+
+    .shift-pattern {
+        border: 2px solid #000000;
+        color: #000000;
+        background: #ffffff;
+    }
+}
